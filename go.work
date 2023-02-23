@@ -1,3 +1,7 @@
 go 1.18
 
-use ./project-user
+use (
+	./project-api
+	./project-common
+	./project-user
+)
