@@ -2,13 +2,14 @@ package login_service_v1
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"go.uber.org/zap"
 	"log"
 	common "test.com/project-common"
+	"test.com/project-common/errs"
 	"test.com/project-common/logs"
 	"test.com/project-user/pkg/dao"
+	"test.com/project-user/pkg/model"
 	"test.com/project-user/pkg/repo"
 	"time"
 )
@@ -29,7 +30,7 @@ func (ls *LoginService) GetCaptcha(ctx context.Context, msg *CaptchaMessage) (*C
 	mobile := msg.Mobile
 	//2. 验证手机合法性
 	if !common.VerifyMobile(mobile) {
-		return nil, errors.New("手机号不合法")
+		return nil, errs.GrpcError(model.NoLegalMobile)
 	}
 	//3.生成验证码
 	code := "123456"
