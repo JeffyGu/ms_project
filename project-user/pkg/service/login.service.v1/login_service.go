@@ -48,5 +48,5 @@ func (ls *LoginService) GetCaptcha(ctx context.Context, msg *CaptchaMessage) (*C
 			log.Printf("验证码存入redis出错,cause by:%v", err)
 		}
 	}()
-	return &CaptchaResponse{}, nil
+	return &CaptchaResponse{Code: code}, nil
 }

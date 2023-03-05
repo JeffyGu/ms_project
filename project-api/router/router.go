@@ -10,7 +10,7 @@ import (
 )
 
 type Router interface {
-	Router(r *gin.Engine)
+	Route(r *gin.Engine)
 }
 type RegisterRouter struct {
 }
@@ -19,7 +19,7 @@ func New() *RegisterRouter {
 	return &RegisterRouter{}
 }
 func (*RegisterRouter) Route(router Router, r *gin.Engine) {
-	router.Router(r)
+	router.Route(r)
 }
 
 var routers []Router
@@ -28,7 +28,7 @@ func InitRouter(r *gin.Engine) {
 	//rg := New()
 	//rg.Route(&user.RouterUser{}, r)
 	for _, ro := range routers {
-		ro.Router(r)
+		ro.Route(r)
 	}
 }
 
