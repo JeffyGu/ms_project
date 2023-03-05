@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 	common "test.com/project-common"
+	"test.com/project-common/logs"
 	"test.com/project-user/pkg/dao"
 	"test.com/project-user/pkg/model"
 	"test.com/project-user/pkg/repo"
@@ -38,7 +40,9 @@ func (h *HandlerLogin) GetCaptcha(ctx *gin.Context) {
 	//4. 调用短信平台发送验证码（放入go协程）
 	go func() {
 		time.Sleep(2 * time.Second)
-		log.Println("调用短信平台发送短信")
+		zap.L().Info("调用短信平台发送短信:info")
+		logs.LG.Debug("调用短信平台发送短信:Debug")
+		zap.L().Error("调用短信平台发送短信:Error")
 		//发送成功 存入redis
 		fmt.Println(mobile, code)
 		c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
