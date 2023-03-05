@@ -1,39 +1,35 @@
-package login
+package login_service_v1
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"log"
-	"net/http"
 	common "test.com/project-common"
 	"test.com/project-common/logs"
 	"test.com/project-user/pkg/dao"
-	"test.com/project-user/pkg/model"
 	"test.com/project-user/pkg/repo"
 	"time"
 )
 
-type HandlerLogin struct {
+type LoginService struct {
+	UnimplementedLoginServiceServer
 	cache repo.Cache
 }
 
-func New() *HandlerLogin {
-	return &HandlerLogin{
+func New() *LoginService {
+	return &LoginService{
 		cache: dao.Rc,
 	}
 }
 
-// GetCaptcha 获取手机验证码
-func (h *HandlerLogin) GetCaptcha(ctx *gin.Context) {
-	result := &common.Result{}
+func (ls *LoginService) GetCaptcha(ctx context.Context, msg *CaptchaMessage) (*CaptchaResponse, error) {
 	//1. 获取参数
-	mobile := ctx.PostForm("mobile")
+	mobile := msg.Mobile
 	//2. 验证手机合法性
 	if !common.VerifyMobile(mobile) {
-		ctx.JSON(http.StatusOK, result.Fail(model.NoLegalMobile, "不合法"))
-		return
+		return nil, errors.New("手机号不合法")
 	}
 	//3.生成验证码
 	code := "123456"
@@ -46,11 +42,11 @@ func (h *HandlerLogin) GetCaptcha(ctx *gin.Context) {
 		//发送成功 存入redis
 		fmt.Println(mobile, code)
 		c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		err := h.cache.Put(c, "REGISTER_"+mobile, code, 15*time.Minute)
+		err := ls.cache.Put(c, "REGISTER_"+mobile, code, 15*time.Minute)
 		defer cancel()
 		if err != nil {
 			log.Printf("验证码存入redis出错,cause by:%v", err)
 		}
 	}()
-	ctx.JSON(http.StatusOK, result.Success("123456"))
+	return &CaptchaResponse{}, nil
 }
