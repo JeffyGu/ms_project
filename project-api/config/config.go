@@ -10,12 +10,18 @@ import (
 var C = InitConfig()
 
 type Config struct {
-	viper *viper.Viper
-	SC    *ServerConfig
+	viper      *viper.Viper
+	SC         *ServerConfig
+	EtcdConfig *EtcdConfig
 }
+
 type ServerConfig struct {
 	Name string
 	Addr string
+}
+
+type EtcdConfig struct {
+	Addrs []string
 }
 
 func InitConfig() *Config {
@@ -34,6 +40,7 @@ func InitConfig() *Config {
 	//调用读取配置
 	conf.ReadServerConfig()
 	conf.ReadZapLogConfig()
+	conf.ReadEtcdConfig()
 	return conf
 }
 
@@ -60,4 +67,16 @@ func (c *Config) ReadZapLogConfig() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+// ReadEtcdConfig etcd配置
+func (c *Config) ReadEtcdConfig() {
+	ec := &EtcdConfig{}
+	var addrs []string
+	err := c.viper.UnmarshalKey("etcd.addrs", &addrs)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	ec.Addrs = addrs
+	c.EtcdConfig = ec
 }
