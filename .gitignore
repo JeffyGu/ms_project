@@ -8,6 +8,7 @@
 *.log
 log
 go.sum
+work.sum
 
 # Test binary, built with `go test -c`
 *.test

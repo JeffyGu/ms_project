@@ -1,0 +1,23 @@
+server:
+  name: "project-user"
+  addr: "0.0.0.0:8080"
+zap:
+  debugFileName: "/logs/debug/project-debug.log"
+  infoFileName: "/logs/info/project-info.log"
+  warnFileName: "/logs/error/project-error.log"
+  maxSize: 500,
+  maxAge: 28,
+  MaxBackups: 3
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+grpc:
+  name: "user"
+  addr: "127.0.0.1:8881"
+  version: "1.0.0"
+  weight: 2
+etcd:
+  addrs:
+    - "127.0.0.1:2379"
