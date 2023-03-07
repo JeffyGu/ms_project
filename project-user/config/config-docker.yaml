@@ -9,15 +9,15 @@ zap:
   maxAge: 28,
   MaxBackups: 3
 redis:
-  host: "localhost"
+  host: "redis6"
   port: 6379
   password: ""
   db: 0
 grpc:
   name: "user"
-  addr: "127.0.0.1:8881"
+  addr: "0.0.0.0:8881"
   version: "1.0.0"
   weight: 2
 etcd:
   addrs:
-    - "127.0.0.1:2379"
+    - "etcd3:2379"
