@@ -13,5 +13,5 @@ func main() {
 
 	router.InitRouter(r)
 
-	srv.Run(r, config.C.SC.Name, config.C.SC.Addr, nil)
+	srv.Run(r, config.AC.SC.Name, config.AC.SC.Addr, nil)
 }

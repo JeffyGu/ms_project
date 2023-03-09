@@ -8,24 +8,27 @@ import (
 	common "test.com/project-common"
 	"test.com/project-common/errs"
 	"test.com/project-common/logs"
-	"test.com/project-user/pkg/dao"
+	"test.com/project-grpc/user/login"
+	"test.com/project-user/internal/dao"
+	"test.com/project-user/internal/repo"
 	"test.com/project-user/pkg/model"
-	"test.com/project-user/pkg/repo"
 	"time"
 )
 
 type LoginService struct {
-	UnimplementedLoginServiceServer
-	cache repo.Cache
+	login.UnimplementedLoginServiceServer
+	cache      repo.Cache
+	memberRepo repo.MemberRepo
 }
 
 func New() *LoginService {
 	return &LoginService{
-		cache: dao.Rc,
+		cache:      dao.Rc,
+		memberRepo: dao.NewMemberDao(),
 	}
 }
 
-func (ls *LoginService) GetCaptcha(ctx context.Context, msg *CaptchaMessage) (*CaptchaResponse, error) {
+func (ls *LoginService) GetCaptcha(ctx context.Context, msg *login.CaptchaMessage) (*login.CaptchaResponse, error) {
 	//1. 获取参数
 	mobile := msg.Mobile
 	//2. 验证手机合法性
@@ -43,11 +46,48 @@ func (ls *LoginService) GetCaptcha(ctx context.Context, msg *CaptchaMessage) (*C
 		//发送成功 存入redis
 		fmt.Println(mobile, code)
 		c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		err := ls.cache.Put(c, "REGISTER_"+mobile, code, 15*time.Minute)
+		err := ls.cache.Put(c, model.RegisterRedisKey+mobile, code, 15*time.Minute)
 		defer cancel()
 		if err != nil {
 			log.Printf("验证码存入redis出错,cause by:%v", err)
 		}
 	}()
-	return &CaptchaResponse{Code: code}, nil
+	return &login.CaptchaResponse{Code: code}, nil
+}
+
+func (ls *LoginService) Register(ctx context.Context, msg *login.RegisterMessage) (*login.RegisterResponse, error) {
+	c := context.Background()
+	redisCode, err := ls.cache.Get(c, model.RegisterRedisKey+msg.Mobile)
+	if err != nil {
+		zap.L().Error("Register redis get error", zap.Error(err))
+		return nil, errs.GrpcError(model.RedisError)
+	}
+	if redisCode != msg.Captcha {
+		return nil, errs.GrpcError(model.CaptchaError)
+	}
+	exist, err := ls.memberRepo.GetMemberByEmail(c, msg.Email)
+	if err != nil {
+		zap.L().Error("Register db get error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	if exist {
+		return nil, errs.GrpcError(model.EmailExist)
+	}
+	exist, err = ls.memberRepo.GetMemberByAccount(c, msg.Name)
+	if err != nil {
+		zap.L().Error("Register db get error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	if exist {
+		return nil, errs.GrpcError(model.AccountExist)
+	}
+	exist, err = ls.memberRepo.GetMemberByMobile(c, msg.Mobile)
+	if err != nil {
+		zap.L().Error("Register db get error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	if exist {
+		return nil, errs.GrpcError(model.MobileExist)
+	}
+	return nil, nil
 }

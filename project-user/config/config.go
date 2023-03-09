@@ -8,13 +8,14 @@ import (
 	"test.com/project-common/logs"
 )
 
-var C = InitConfig()
+var C = InitConfig1()
 
 type Config struct {
-	viper      *viper.Viper
-	SC         *ServerConfig
-	GC         *GrpcConfig
-	EtcdConfig *EtcdConfig
+	viper       *viper.Viper
+	SC          *ServerConfig
+	GC          *GrpcConfig
+	EtcdConfig  *EtcdConfig
+	MysqlConfig *MysqlConfig
 }
 type ServerConfig struct {
 	Name string
@@ -32,7 +33,15 @@ type EtcdConfig struct {
 	Addrs []string
 }
 
-func InitConfig() *Config {
+type MysqlConfig struct {
+	Username string
+	Password string
+	Host     string
+	Port     int
+	Db       string
+}
+
+func InitConfig1() *Config {
 	conf := &Config{viper: viper.New()}
 	//返回当前路径
 	workDir, _ := os.Getwd()
@@ -50,6 +59,7 @@ func InitConfig() *Config {
 	conf.ReadZapLogConfig()
 	conf.ReadGrpcConfig()
 	conf.ReadEtcdConfig()
+	conf.ReadMysqlConfig()
 	return conf
 }
 
@@ -107,4 +117,16 @@ func (c *Config) ReadEtcdConfig() {
 	}
 	ec.Addrs = addrs
 	c.EtcdConfig = ec
+}
+
+// ReadMysqlConfig 数据库配置
+func (c *Config) ReadMysqlConfig() {
+	mc := &MysqlConfig{
+		Username: c.viper.GetString("mysql.username"),
+		Password: c.viper.GetString("mysql.password"),
+		Host:     c.viper.GetString("mysql.host"),
+		Port:     c.viper.GetInt("mysql.port"),
+		Db:       c.viper.GetString("mysql.db"),
+	}
+	c.MysqlConfig = mc
 }
