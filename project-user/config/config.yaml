@@ -14,8 +14,8 @@ redis:
   password: ""
   db: 0
 grpc:
-  name: "user"
   addr: "127.0.0.1:8881"
+  name: "user"
   version: "1.0.0"
   weight: 2
 etcd:
@@ -27,3 +27,8 @@ mysql:
   host: 127.0.0.1
   port: 3309
   db: msproject
+jwt:
+  accessExp: 7
+  refreshExp: 14
+  accessSecret: msproject
+  refreshSecret: ms_project

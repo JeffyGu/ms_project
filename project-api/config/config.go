@@ -7,7 +7,7 @@ import (
 	"test.com/project-common/logs"
 )
 
-var AC = InitConfig()
+var C = InitConfig()
 
 type Config struct {
 	viper      *viper.Viper
@@ -22,10 +22,8 @@ type ServerConfig struct {
 }
 
 type GrpcConfig struct {
-	Name    string
-	Addr    string
-	Version string
-	Weight  int64
+	Name string
+	Addr string
 }
 
 type EtcdConfig struct {
@@ -34,45 +32,22 @@ type EtcdConfig struct {
 
 func InitConfig() *Config {
 	conf := &Config{viper: viper.New()}
-	//返回当前路径
 	workDir, _ := os.Getwd()
 	conf.viper.SetConfigName("config")
 	conf.viper.SetConfigType("yaml")
-	//设置路径 可设置多个
 	conf.viper.AddConfigPath("/etc/ms_project/user")
 	conf.viper.AddConfigPath(workDir + "/config")
 	err := conf.viper.ReadInConfig()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
-	//调用读取配置
 	conf.ReadServerConfig()
-	conf.ReadGrpcConfig()
-	conf.ReadZapLogConfig()
+	conf.InitZapLog()
 	conf.ReadEtcdConfig()
 	return conf
 }
 
-// ReadServerConfig 服务配置
-func (c *Config) ReadServerConfig() {
-	sc := &ServerConfig{}
-	sc.Name = c.viper.GetString("server.name")
-	sc.Addr = c.viper.GetString("server.addr")
-	c.SC = sc
-}
-
-// ReadGrpcConfig grpc配置
-func (c *Config) ReadGrpcConfig() {
-	gc := &GrpcConfig{}
-	gc.Name = c.viper.GetString("grpc.name")
-	gc.Addr = c.viper.GetString("grpc.addr")
-	gc.Version = c.viper.GetString("grpc.version")
-	gc.Weight = c.viper.GetInt64("grpc.weight")
-	c.GC = gc
-}
-
-// ReadZapLogConfig zap日志配置
-func (c *Config) ReadZapLogConfig() {
+func (c *Config) InitZapLog() {
 	//从配置中读取日志配置，初始化日志
 	lc := &logs.LogConfig{
 		DebugFileName: c.viper.GetString("zap.debugFileName"),
@@ -88,7 +63,13 @@ func (c *Config) ReadZapLogConfig() {
 	}
 }
 
-// ReadEtcdConfig etcd配置
+func (c *Config) ReadServerConfig() {
+	sc := &ServerConfig{}
+	sc.Name = c.viper.GetString("server.name")
+	sc.Addr = c.viper.GetString("server.addr")
+	c.SC = sc
+}
+
 func (c *Config) ReadEtcdConfig() {
 	ec := &EtcdConfig{}
 	var addrs []string

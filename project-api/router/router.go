@@ -5,17 +5,20 @@ import (
 	"google.golang.org/grpc"
 )
 
+//Router 接口
 type Router interface {
 	Route(r *gin.Engine)
 }
+
 type RegisterRouter struct {
 }
 
 func New() *RegisterRouter {
 	return &RegisterRouter{}
 }
-func (*RegisterRouter) Route(router Router, r *gin.Engine) {
-	router.Route(r)
+
+func (*RegisterRouter) Route(ro Router, r *gin.Engine) {
+	ro.Route(r)
 }
 
 var routers []Router

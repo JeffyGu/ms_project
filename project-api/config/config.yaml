@@ -1,5 +1,5 @@
 server:
-  name: "project-api"
+  name: "menu-api"
   addr: "127.0.0.1:80"
 zap:
   debugFileName: "E:\\go-code\\ms_project_hub\\logs\\debug\\project-debug.log"

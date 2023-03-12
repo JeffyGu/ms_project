@@ -13,17 +13,20 @@ import (
 	loginServiceV1 "test.com/project-user/pkg/service/login.service.v1"
 )
 
+//Router 接口
 type Router interface {
-	Router(r *gin.Engine)
+	Route(r *gin.Engine)
 }
+
 type RegisterRouter struct {
 }
 
 func New() *RegisterRouter {
 	return &RegisterRouter{}
 }
-func (*RegisterRouter) Route(router Router, r *gin.Engine) {
-	router.Router(r)
+
+func (*RegisterRouter) Route(ro Router, r *gin.Engine) {
+	ro.Route(r)
 }
 
 var routers []Router
@@ -32,7 +35,7 @@ func InitRouter(r *gin.Engine) {
 	//rg := New()
 	//rg.Route(&user.RouterUser{}, r)
 	for _, ro := range routers {
-		ro.Router(r)
+		ro.Route(r)
 	}
 }
 
@@ -71,6 +74,7 @@ func RegisterGrpc() *grpc.Server {
 func RegisterEtcdServer() {
 	etcdRegister := discovery.NewResolver(config.C.EtcdConfig.Addrs, logs.LG)
 	resolver.Register(etcdRegister)
+
 	info := discovery.Server{
 		Name:    config.C.GC.Name,
 		Addr:    config.C.GC.Addr,

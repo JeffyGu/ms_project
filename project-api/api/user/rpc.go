@@ -14,7 +14,7 @@ import (
 var LoginServiceClient login.LoginServiceClient
 
 func InitRpcUserClient() {
-	etcdRegister := discovery.NewResolver(config.AC.EtcdConfig.Addrs, logs.LG)
+	etcdRegister := discovery.NewResolver(config.C.EtcdConfig.Addrs, logs.LG)
 	resolver.Register(etcdRegister)
 
 	conn, err := grpc.Dial("etcd:///user", grpc.WithTransportCredentials(insecure.NewCredentials()))

@@ -1,7 +1,7 @@
 package errs
 
 import (
-	"google.golang.org/grpc/codes"
+	codes "google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	common "test.com/project-common"
 )

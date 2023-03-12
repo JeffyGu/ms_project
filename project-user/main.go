@@ -9,11 +9,11 @@ import (
 
 func main() {
 	r := gin.Default()
-
+	//路由
 	router.InitRouter(r)
-	//注册grpc
+	//grpc服务注册
 	gc := router.RegisterGrpc()
-	//prpc服务注册到etcd
+	//grpc服务注册到etcd
 	router.RegisterEtcdServer()
 
 	stop := func() {
